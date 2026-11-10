@@ -22,7 +22,21 @@ function setAdminToken(token: string | null) {
   }
 }
 
-// Fallback seed data if running purely frontend
+// Helper to safely parse JSON and prevent "Unexpected token '<' / 'T'"
+async function safeParseJson<T>(res: Response): Promise<{ ok: boolean; data?: T; error?: string }> {
+  try {
+    const text = await res.text();
+    if (!text || text.trim().startsWith('<') || text.includes('The page cannot') || text.includes('The page could')) {
+      return { ok: false, error: 'Server backend sedang tidak aktif atau rute tidak ditemukan.' };
+    }
+    const json = JSON.parse(text);
+    return { ok: res.ok, data: json };
+  } catch {
+    return { ok: false, error: 'Respon server tidak valid (bukan JSON).' };
+  }
+}
+
+// Fallback seed data
 const DEFAULT_EVENT: EventItem = {
   id: 'e1111111-1111-1111-1111-111111111111',
   name: 'Kerja Bakti Asrama',
@@ -56,9 +70,9 @@ export const api = {
   async getActiveEvent(): Promise<EventItem | null> {
     try {
       const res = await fetch('/api/active-event');
-      if (res.ok) {
-        const json = await res.json();
-        return json.data;
+      const parsed = await safeParseJson<any>(res);
+      if (parsed.ok && parsed.data?.success) {
+        return parsed.data.data;
       }
     } catch {
       // Fallback
@@ -70,9 +84,9 @@ export const api = {
   async getActiveResidents(): Promise<Resident[]> {
     try {
       const res = await fetch('/api/active-residents');
-      if (res.ok) {
-        const json = await res.json();
-        return json.data;
+      const parsed = await safeParseJson<any>(res);
+      if (parsed.ok && parsed.data?.success) {
+        return parsed.data.data;
       }
     } catch {
       // Fallback
@@ -87,9 +101,9 @@ export const api = {
       const res = await fetch('/api/admin/residents', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) {
-        const json = await res.json();
-        return json.data;
+      const parsed = await safeParseJson<any>(res);
+      if (parsed.ok && parsed.data?.success) {
+        return parsed.data.data;
       }
     } catch {
       // Fallback
@@ -109,11 +123,11 @@ export const api = {
       body: JSON.stringify({ name, hallway }),
     });
 
-    const json = await res.json();
-    if (!res.ok || !json.success) {
-      throw new Error(json.error || 'Gagal menambahkan penghuni.');
+    const parsed = await safeParseJson<any>(res);
+    if (!parsed.ok || !parsed.data?.success) {
+      throw new Error(parsed.data?.error || parsed.error || 'Gagal menambahkan penghuni.');
     }
-    return json.data;
+    return parsed.data.data;
   },
 
   // 5. Update resident
@@ -128,11 +142,11 @@ export const api = {
       body: JSON.stringify({ name, hallway }),
     });
 
-    const json = await res.json();
-    if (!res.ok || !json.success) {
-      throw new Error(json.error || 'Gagal mengubah data penghuni.');
+    const parsed = await safeParseJson<any>(res);
+    if (!parsed.ok || !parsed.data?.success) {
+      throw new Error(parsed.data?.error || parsed.error || 'Gagal mengubah data penghuni.');
     }
-    return json.data;
+    return parsed.data.data;
   },
 
   // 6. Toggle resident status
@@ -147,11 +161,11 @@ export const api = {
       body: JSON.stringify({ is_active: isActive }),
     });
 
-    const json = await res.json();
-    if (!res.ok || !json.success) {
-      throw new Error(json.error || 'Gagal mengubah status penghuni.');
+    const parsed = await safeParseJson<any>(res);
+    if (!parsed.ok || !parsed.data?.success) {
+      throw new Error(parsed.data?.error || parsed.error || 'Gagal mengubah status penghuni.');
     }
-    return json.data;
+    return parsed.data.data;
   },
 
   // 7. Submit attendance
@@ -163,8 +177,11 @@ export const api = {
         body: JSON.stringify(payload),
       });
 
-      const json = await res.json();
-      return json as SubmitAttendanceResult;
+      const parsed = await safeParseJson<SubmitAttendanceResult>(res);
+      if (parsed.data) {
+        return parsed.data;
+      }
+      return { success: false, error: parsed.error || 'Koneksi ke server gagal.' };
     } catch (err: any) {
       return { success: false, error: err.message || 'Koneksi ke server gagal.' };
     }
@@ -177,9 +194,9 @@ export const api = {
       const res = await fetch(`/api/admin/dashboard-records?eventId=${eventId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) {
-        const json = await res.json();
-        return json.records || [];
+      const parsed = await safeParseJson<any>(res);
+      if (parsed.ok && parsed.data?.records) {
+        return parsed.data.records;
       }
     } catch {
       // Fallback
@@ -194,15 +211,9 @@ export const api = {
       const res = await fetch(`/api/admin/dashboard-records?eventId=${eventId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) {
-        const json = await res.json();
-        return json.stats || {
-          totalResidents: 0,
-          hadir: 0,
-          izin: 0,
-          belumHadir: 0,
-          attendancePercentage: 0,
-        };
+      const parsed = await safeParseJson<any>(res);
+      if (parsed.ok && parsed.data?.stats) {
+        return parsed.data.stats;
       }
     } catch {
       // Fallback
@@ -225,12 +236,12 @@ export const api = {
         body: JSON.stringify({ username, password }),
       });
 
-      const json = await res.json();
-      if (res.ok && json.success && json.token) {
-        setAdminToken(json.token);
+      const parsed = await safeParseJson<any>(res);
+      if (parsed.ok && parsed.data?.success && parsed.data?.token) {
+        setAdminToken(parsed.data.token);
         return { success: true };
       }
-      return { success: false, error: json.error || 'Login gagal.' };
+      return { success: false, error: parsed.data?.error || parsed.error || 'Login gagal.' };
     } catch (err: any) {
       return { success: false, error: err.message || 'Gagal menghubungi server.' };
     }
@@ -259,9 +270,9 @@ export const api = {
       const res = await fetch('/api/admin/check-session', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) {
-        const json = await res.json();
-        return Boolean(json.authenticated);
+      const parsed = await safeParseJson<any>(res);
+      if (parsed.ok && parsed.data?.success) {
+        return Boolean(parsed.data.authenticated);
       }
     } catch {
       // Ignore
