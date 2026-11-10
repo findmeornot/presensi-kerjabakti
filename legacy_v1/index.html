@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="brand"><div class="mark">✓</div><div><strong>Kerja Bakti Asrama</strong><small>Presensi penghuni · Lorong 3 &amp; 4</small></div></div>
+      <nav class="nav"><button id="navAttend" class="active" onclick="showPage('attend')">Absensi</button><button id="navAdmin" onclick="showPage('admin')">Pengurus</button></nav>
+    </header>
+
+    <section id="pageAttend" class="page active">
+      <div class="hero"><div class="eyebrow">Kegiatan asrama</div><h1>Catat kehadiranmu.</h1><p>Pilih namamu dan konfirmasi keikutsertaan kerja bakti.</p></div>
+      <div class="layout">
+        <article class="card"><div id="publicNotice" class="notice"></div><div id="eventInfo" class="event-info"><div class="spinner">Memuat kegiatan…</div></div>
+          <form id="attendanceForm" onsubmit="submitAttendanceForm(event)">
+            <div class="field"><label for="residentSearch">Nama penghuni</label><div class="search-box"><input id="residentSearch" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="residentOptions" autocomplete="off" placeholder="Cari nama penghuni…" required><input id="residentSelect" type="hidden"><div id="residentOptions" class="search-results hidden"></div></div><span id="residentHall" class="help">Cari lalu pilih nama dari daftar penghuni.</span></div>
+            <div class="field"><label for="attendanceStatus">Status kehadiran</label><select id="attendanceStatus" required onchange="toggleReason()"><option value="">Pilih status</option><option>Hadir</option><option>Izin</option></select></div>
+            <div id="reasonWrap" class="field hidden"><label for="reasonInput">Alasan izin</label><textarea id="reasonInput" maxlength="1000" placeholder="Tuliskan alasan izin"></textarea></div>
+            <button id="submitAttendance" class="btn primary form-submit" type="submit">Kirim absensi</button>
+          </form>
+        </article>
+        <aside class="card"><h2>Informasi kegiatan</h2><p class="muted">Kegiatan ini ditujukan untuk penghuni Lorong 3 dan Lorong 4. Pastikan status yang kamu pilih sudah benar sebelum mengirim.</p><p class="muted">Absensi hanya dapat dikirim satu kali untuk setiap kegiatan.</p></aside>
+      </div>
+    </section>
+
+    <section id="pageAdmin" class="page">
+      <div id="dashboardView">
+        <div class="section-head"><div><div class="eyebrow">Data lokal perangkat ini</div><h1 style="font-size:32px;margin:3px 0">Ringkasan kehadiran</h1></div><div class="toolbar"><select id="eventSelect" aria-label="Pilih kegiatan" onchange="refreshDashboard()"></select><button class="btn" onclick="refreshDashboard()">↻ Perbarui</button><button class="btn subtle" onclick="logout()">Kembali</button></div></div>
+        <div id="adminNotice" class="notice"></div><p class="help">Data tersimpan hanya di browser ini. Tidak ada sinkronisasi antar-HP dan tidak ada login pengurus. Gunakan satu perangkat pengurus, lalu unduh cadangan JSON secara berkala.</p>
+        <div id="selectedEventBanner" class="event-info"></div>
+        <div id="stats" class="stat-grid"></div>
+        <div class="section-head"><h2>Rekap per lorong</h2></div><div id="hallStats" class="hall-grid"></div>
+        <div class="tabs"><button class="active" onclick="showPanel('attendance',this)">Kehadiran</button><button onclick="showPanel('residents',this)">Penghuni</button><button onclick="showPanel('events',this)">Kegiatan</button></div>
+        <section id="panelAttendance" class="panel active">
+          <div class="section-head"><h2>Daftar penghuni</h2><div class="toolbar"><select id="hallFilter" onchange="renderTable()"><option value="Semua">Semua lorong</option><option>Lorong 3</option><option>Lorong 4</option></select><select id="statusFilter" onchange="renderTable()"><option value="Semua">Semua status</option><option>Hadir</option><option>Izin</option><option>Belum Hadir</option></select><input id="nameFilter" placeholder="Cari nama…" oninput="renderTable()"><select id="exportFilter"><option value="Semua">Ekspor semua</option><option>Hadir</option><option>Izin</option><option>Belum Hadir</option><option>Lorong 3</option><option>Lorong 4</option></select><button class="btn primary" onclick="exportCsv()">Unduh CSV</button><button class="btn" onclick="backupData()">Cadangkan JSON</button><button class="btn" onclick="document.getElementById('restoreFile').click()">Pulihkan JSON</button><input id="restoreFile" type="file" accept="application/json,.json" class="hidden" onchange="restoreBackup(this.files[0]);this.value=''"></div></div>
+          <div id="attendanceTable" class="table-wrap"></div>
+          <div id="archivedAttendanceSection" class="hidden"><div class="section-head"><h2>Histori penghuni nonaktif</h2></div><p class="help">Catatan lama tetap disimpan dan tidak masuk perhitungan penghuni aktif.</p><div id="archivedAttendanceTable" class="table-wrap"></div></div>
+        </section>
+        <section id="panelResidents" class="panel"><div class="section-head"><h2>Master penghuni</h2><button class="btn primary" onclick="openResident()">＋ Tambah penghuni</button></div><div id="residentsTable" class="table-wrap"></div></section>
+        <section id="panelEvents" class="panel"><div class="section-head"><h2>Pengelolaan kegiatan</h2><button class="btn primary" onclick="openEvent()">＋ Kegiatan baru</button></div><div id="eventsTable" class="table-wrap"></div></section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="residentDialog" class="dialog"><form onsubmit="saveResidentForm(event)"><h2 id="residentDialogTitle">Tambah penghuni</h2><input id="residentId" type="hidden"><div class="field"><label for="residentName">Nama lengkap</label><input id="residentName" maxlength="120" required></div><div class="field"><label for="residentLorong">Lorong</label><select id="residentLorong"><option>Lorong 3</option><option>Lorong 4</option></select></div><div class="dialog-actions"><button type="button" class="btn" onclick="residentDialog.close()">Batal</button><button class="btn primary">Simpan</button></div></form></dialog>
+  <dialog id="eventDialog" class="dialog"><form onsubmit="saveEventForm(event)"><h2 id="eventDialogTitle">Buat kegiatan</h2><input id="eventId" type="hidden"><div class="field"><label for="eventName">Nama kegiatan</label><input id="eventName" maxlength="140" required value="Kerja Bakti Asrama"></div><div class="field"><label for="eventDate">Tanggal</label><input id="eventDate" type="date" required></div><div class="field"><label for="eventTime">Waktu</label><input id="eventTime" type="time" required></div><div class="field"><label for="eventLocation">Lokasi</label><input id="eventLocation" required value="Lorong 3 dan Lorong 4"></div><div class="field"><label for="eventDescription">Deskripsi</label><textarea id="eventDescription">Pembersihan kamar mandi baru dan wastafel</textarea></div><div class="dialog-actions"><button type="button" class="btn" onclick="eventDialog.close()">Batal</button><button class="btn primary">Simpan</button></div></form></dialog>
+  <dialog id="correctionDialog" class="dialog"><form onsubmit="saveCorrection(event)"><h2>Koreksi absensi</h2><input id="correctionId" type="hidden"><div class="field"><label for="correctionStatus">Status</label><select id="correctionStatus" onchange="toggleCorrectionReason()"><option>Hadir</option><option>Izin</option></select></div><div id="correctionReasonWrap" class="field hidden"><label for="correctionReason">Alasan izin</label><textarea id="correctionReason" maxlength="1000"></textarea></div><div class="dialog-actions"><button type="button" class="btn" onclick="correctionDialog.close()">Batal</button><button class="btn primary">Simpan koreksi</button></div></form></dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
