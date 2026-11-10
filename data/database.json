@@ -1,0 +1,124 @@
+{
+  "events": [
+    {
+      "id": "e1111111-1111-1111-1111-111111111111",
+      "name": "Kerja Bakti Asrama",
+      "event_date": "2026-11-10",
+      "event_time": "17.00 WIB",
+      "location": "Lorong 3 & 4",
+      "description": "Pembersihan kamar mandi baru dan wastafel",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.662Z"
+    }
+  ],
+  "residents": [
+    {
+      "id": "r01",
+      "name": "Ahmad Fauzi",
+      "hallway": "Lorong 3",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r02",
+      "name": "Budi Santoso",
+      "hallway": "Lorong 3",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r03",
+      "name": "Dimas Pratama",
+      "hallway": "Lorong 3",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r04",
+      "name": "Fajar Ramadhan",
+      "hallway": "Lorong 3",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r05",
+      "name": "Gilang Perkasa",
+      "hallway": "Lorong 3",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r06",
+      "name": "Hendra Wijaya",
+      "hallway": "Lorong 3",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r07",
+      "name": "Irfan Hakim",
+      "hallway": "Lorong 3",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r08",
+      "name": "Aditya Pratama",
+      "hallway": "Lorong 4",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r09",
+      "name": "Bagus Nugroho",
+      "hallway": "Lorong 4",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r10",
+      "name": "Candra Kusuma",
+      "hallway": "Lorong 4",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r11",
+      "name": "Dwi Saputra",
+      "hallway": "Lorong 4",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r12",
+      "name": "Farhan Maulana",
+      "hallway": "Lorong 4",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r13",
+      "name": "Hafizh Firdaus",
+      "hallway": "Lorong 4",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    },
+    {
+      "id": "r14",
+      "name": "Rizky Alamsyah",
+      "hallway": "Lorong 4",
+      "is_active": true,
+      "created_at": "2026-11-10T06:32:38.664Z"
+    }
+  ],
+  "attendances": [
+    {
+      "id": "att_1794292595764_zjwhf",
+      "event_id": "e1111111-1111-1111-1111-111111111111",
+      "resident_id": "r01",
+      "status": "Izin",
+      "excuse_reason": "sakit",
+      "created_at": "2026-11-10T06:36:35.763Z"
+    }
+  ]
+}

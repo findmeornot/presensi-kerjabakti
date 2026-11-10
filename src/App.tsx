@@ -97,7 +97,7 @@ const AppContent: React.FC = () => {
             Kebersihan Asrama &bull; Lorong 3 &amp; Lorong 4
           </div>
           <div className="text-slate-400">
-            Sistem Absensi Kerja Bakti Asrama Modern &copy; 2026
+            Sistem Absensi Kerja Bakti Asrama Modern &#64;findrlk
           </div>
         </div>
       </footer>
