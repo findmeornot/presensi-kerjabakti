@@ -98,6 +98,38 @@ apiRouter.get('/active-residents', (req, res) => {
   res.json({ success: true, data: list });
 });
 
+// 2b. Get active residents with attendance status for active event (Direct 1-Click Absensi)
+apiRouter.get('/public-residents-status', (req, res) => {
+  const db = readDb();
+  const event = db.events.find((e) => e.is_active) || db.events[0];
+  if (!event) return res.json({ success: true, data: [] });
+
+  const attendances = db.attendances.filter((a) => a.event_id === event.id);
+  const attMap = new Map();
+  attendances.forEach((a) => attMap.set(a.resident_id, a));
+
+  const list = db.residents
+    .filter((r) => r.is_active)
+    .sort((a, b) => a.name.localeCompare(b.name, 'id'))
+    .map((r) => {
+      const att = attMap.get(r.id);
+      return {
+        id: r.id,
+        name: r.name,
+        hallway: r.hallway,
+        is_active: r.is_active,
+        attendance: att
+          ? {
+              status: att.status,
+              recordedAt: att.created_at,
+              excuseReason: att.excuse_reason,
+            }
+          : null,
+      };
+    });
+  res.json({ success: true, data: list });
+});
+
 // 3. Submit attendance
 apiRouter.post('/attendance', (req, res) => {
   const { eventId, residentId, status, excuseReason } = req.body;

@@ -66,3 +66,15 @@ export interface SubmitAttendanceResult {
   };
   error?: string;
 }
+
+export interface PublicResidentAttendance {
+  id: string;
+  name: string;
+  hallway: Hallway;
+  is_active: boolean;
+  attendance: {
+    status: 'Hadir' | 'Izin';
+    recordedAt: string;
+    excuseReason?: string | null;
+  } | null;
+}

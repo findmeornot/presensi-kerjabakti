@@ -94,6 +94,23 @@ export const api = {
     return DEFAULT_RESIDENTS.filter((r) => r.is_active);
   },
 
+  // 2b. Get active residents with their attendance status (Direct Absensi Flow)
+  async getPublicResidentsStatus(): Promise<any[]> {
+    try {
+      const res = await fetch('/api/public-residents-status');
+      const parsed = await safeParseJson<any>(res);
+      if (parsed.ok && parsed.data?.success) {
+        return parsed.data.data;
+      }
+    } catch {
+      // Fallback
+    }
+    return DEFAULT_RESIDENTS.filter((r) => r.is_active).map((r) => ({
+      ...r,
+      attendance: null,
+    }));
+  },
+
   // 3. Get all residents for Admin
   async getAllResidents(): Promise<Resident[]> {
     const token = getAdminToken();
