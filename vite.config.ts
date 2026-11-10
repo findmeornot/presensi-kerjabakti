@@ -15,7 +15,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          supabase: ['@supabase/supabase-js'],
           icons: ['lucide-react'],
         },
       },
@@ -24,10 +23,11 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-  },
-  preview: {
-    host: '0.0.0.0',
-    port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
-    allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
   },
 });
